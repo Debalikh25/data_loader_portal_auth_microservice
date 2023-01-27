@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.cts.dlp.dao.JwtExpired;
+
 import com.cts.dlp.services.CustomUserDetailsService;
 import com.cts.dlp.utils.JwtUtil;
 

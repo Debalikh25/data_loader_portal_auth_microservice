@@ -1,6 +1,6 @@
 package com.cts.dlp.services;
 
-import java.util.Date;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.cts.dlp.dao.JwtExpired;
 import com.cts.dlp.dao.JwtTokenDAO;
 import com.cts.dlp.dao.LoginDAO;
-import com.cts.dlp.dao.UsernameDAO;
 import com.cts.dlp.entities.Login;
 import com.cts.dlp.repositories.LoginRepository;
 import com.cts.dlp.utils.JwtUtil;
@@ -76,27 +75,4 @@ public class AuthorizationService {
 		    this.jwtExpired.setExpired(false);
 		    return this.jwtExpired;
 	}
-
-	// Check Token Expiration Date
-	public Date getTokenExpiration(String header) {
-
-		String token = header.substring(7);
-		Date date = this.jwtutil.extractExpiration(token);
-		return date;
-
-	}
-
-	// get username from token
-	public UsernameDAO getUsernameFromToken(String header) {
-
-		UsernameDAO dao = new UsernameDAO();
-
-		String token = header.substring(7);
-
-		dao.setUsername(this.jwtutil.extractUsername(token));
-
-		return dao;
-
-	}
-
 }

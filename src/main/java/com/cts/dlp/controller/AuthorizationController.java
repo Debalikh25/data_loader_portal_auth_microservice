@@ -1,6 +1,6 @@
 package com.cts.dlp.controller;
 
-import java.util.Date;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +16,9 @@ import com.cts.dlp.dao.JwtExpired;
 import com.cts.dlp.dao.JwtTokenDAO;
 import com.cts.dlp.dao.LoginDAO;
 import com.cts.dlp.dao.MessageDAO;
-import com.cts.dlp.dao.TokenExpiryDateDAO;
-import com.cts.dlp.dao.UsernameDAO;
 import com.cts.dlp.entities.Login;
+import com.cts.dlp.entities.Role;
+import com.cts.dlp.helpers.StringConstants;
 import com.cts.dlp.services.AuthorizationService;
 
 @RestController
@@ -37,27 +37,36 @@ public class AuthorizationController {
 		Login user = this.service.userExist(login);
 
 		if (user == null) {
-			message.setMessage("Admin Not Registered");
-			return new ResponseEntity<>(message, HttpStatus.OK);
+			message.setMessage(StringConstants.ADMIN_NOT_REGISTERED);
+			return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+		}
+
+		Set<Role> roles = user.getRoles();
+		if (roles.size() == 0) {
+			message.setMessage(StringConstants.ADMIN_NOT_REGISTERED);
+			return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+		}
+
+		for (Role r : roles) {
+			if (!(r.getName().equals(StringConstants.ADMIN_USER))) {
+				message.setMessage(StringConstants.NOT_AN_ADMIN);
+				return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+			}
 		}
 
 		if (!(login.getPassword().equals(user.getPassword()))) {
-			message.setMessage("Password is Incorrect");
-			return new ResponseEntity<>(message, HttpStatus.OK);
+			message.setMessage(StringConstants.WRONG_PASSWORD);
+			return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
 		}
 
 		JwtTokenDAO token = this.service.createToken(login);
 
 		return new ResponseEntity<>(token, HttpStatus.OK);
 	}
-	
-	
 
 	@GetMapping("/token/expired")
 	public JwtExpired tokenExpired(@RequestHeader(name = "auth", required = false) String header) {
-           
-		  System.out.println("Method Executed");
-		     
+
 		if (header == null) {
 			return null;
 		}
@@ -65,32 +74,6 @@ public class AuthorizationController {
 		JwtExpired expired = this.service.tokenExpired(header);
 
 		return expired;
-	}
-	
-	
-	
-
-	@GetMapping("/token/expiry")
-	public ResponseEntity<?> tokenExpiry(@RequestHeader("auth") String header) {
-
-		Date date = this.service.getTokenExpiration(header);
-
-		TokenExpiryDateDAO date1 = new TokenExpiryDateDAO();
-		date1.setDate(date);
-
-		return new ResponseEntity<>(date1, HttpStatus.OK);
-
-	}
-	
-	
-
-	@GetMapping("/token/username")
-	public ResponseEntity<?> getUsername(@RequestHeader("auth") String header) {
-
-		UsernameDAO username = this.service.getUsernameFromToken(header);
-
-		return new ResponseEntity<>(username, HttpStatus.OK);
-
 	}
 
 }
