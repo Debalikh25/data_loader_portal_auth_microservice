@@ -1,8 +1,7 @@
-FROM openjdk:8
+FROM openjdk:17
 
-EXPOSE 7001
+EXPOSE 7000
 
-COPY target/dlt-auth.jar dlt-auth.jar
-
+ADD target/dlt-auth.jar dlt-auth.jar
 
 ENTRYPOINT ["java" , "-jar" , "dlt-auth.jar"]
